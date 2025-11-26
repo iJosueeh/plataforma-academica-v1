@@ -1,5 +1,5 @@
 export interface Module {
-    id: number;
+    id: string;
     titulo: string;
     descripcion: string;
     isExpanded: boolean;

@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Benefit } from '@app/core/models/benefit';
-import { Course } from '@app/core/models/course';
+import { CourseLista } from '@app/core/models/course-lista';
 import { FAQ } from '@app/core/models/faq';
 import { Testimonial } from '@app/core/models/testimonial';
+import { CursoService } from '../cursos/services/curso.service';
 
 @Component({
   selector: 'app-home',
@@ -13,66 +14,14 @@ import { Testimonial } from '@app/core/models/testimonial';
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
+  private cursoService = inject(CursoService);
+
   selectedFilter = 'Todos';
 
   filters = ['Todos', 'Principiante', 'Intermedio', 'Avanzado'];
 
-  courses: Course[] = [
-    {
-      id: 1,
-      titulo: 'HTML y CSS: La Guía Completa',
-      nivel: 'Principiante',
-      duracion: '20 horas',
-      imagen: 'https://img-c.udemycdn.com/course/750x422/45537_4036_5.jpg',
-      icono: 'html',
-      color: 'purple'
-    },
-    {
-      id: 2,
-      titulo: 'JavaScript Moderno: ES6+',
-      nivel: 'Principiante',
-      duracion: '35 horas',
-      imagen: 'https://i.ytimg.com/vi/mxOT2iAehEM/maxresdefault.jpg',
-      icono: 'javascript',
-      color: 'yellow'
-    },
-    {
-      id: 3,
-      titulo: 'React.js: De Cero a Experto',
-      nivel: 'Intermedio',
-      duracion: '50 horas',
-      imagen: 'assets/images/courses/react.jpg',
-      icono: 'react',
-      color: 'cyan'
-    },
-    {
-      id: 4,
-      titulo: 'Backend con Node.js y Express',
-      nivel: 'Intermedio',
-      duracion: '45 horas',
-      imagen: 'assets/images/courses/nodejs.jpg',
-      icono: 'nodejs',
-      color: 'green'
-    },
-    {
-      id: 5,
-      titulo: 'Fundamentos de Bases de Datos SQL',
-      nivel: 'Principiante',
-      duracion: '30 horas',
-      imagen: 'assets/images/courses/sql.jpg',
-      icono: 'database',
-      color: 'blue'
-    },
-    {
-      id: 6,
-      titulo: 'Despliegue de Aplicaciones Web',
-      nivel: 'Avanzado',
-      duracion: '25 horas',
-      imagen: 'assets/images/courses/devops.jpg',
-      icono: 'cloud',
-      color: 'indigo'
-    }
-  ];
+  allCourses: CourseLista[] = [];
+  visibleCourses: CourseLista[] = []; // New property to hold a limited number of courses
 
   benefits: Benefit[] = [
     {
@@ -123,17 +72,37 @@ export class Home implements OnInit {
 
   ngOnInit(): void {
     window.scrollTo(0, 0);
+    this.loadCourses();
+  }
+
+  loadCourses(): void {
+    this.cursoService.getAllCourses().subscribe({
+      next: (courses) => {
+        this.allCourses = courses;
+        this.applyFiltersAndLimit();
+      },
+      error: (error) => {
+        console.error('Error al cargar los cursos:', error);
+      }
+    });
   }
 
   selectFilter(filter: string): void {
     this.selectedFilter = filter;
+    this.applyFiltersAndLimit();
   }
 
-  get filteredCourses(): Course[] {
-    if (this.selectedFilter === 'Todos') {
-      return this.courses;
+  applyFiltersAndLimit(): void {
+    let filtered = this.allCourses;
+
+    if (this.selectedFilter !== 'Todos') {
+      filtered = filtered.filter(course => course.nivel === this.selectedFilter);
     }
-    return this.courses.filter(course => course.nivel === this.selectedFilter);
+    this.visibleCourses = filtered.slice(0, 6); // Limit to 6 courses for homepage
+  }
+
+  get filteredCourses(): CourseLista[] { // Changed to CourseLista
+    return this.visibleCourses;
   }
 
   toggleFAQ(faq: FAQ): void {
@@ -142,13 +111,14 @@ export class Home implements OnInit {
 
   getColorClass(color: string): string {
     const colorMap: { [key: string]: string } = {
-      'purple': 'bg-purple-500',
-      'yellow': 'bg-yellow-400',
-      'cyan': 'bg-cyan-500',
-      'green': 'bg-green-600',
+      'teal': 'bg-teal-600',
+      'gray': 'bg-gray-600',
       'blue': 'bg-blue-600',
-      'indigo': 'bg-indigo-600'
+      'purple': 'bg-purple-600',
+      'yellow': 'bg-yellow-500', // Assuming yellow exists in CourseLista
+      'green': 'bg-green-600',   // Assuming green exists in CourseLista
+      'indigo': 'bg-indigo-600'  // Assuming indigo exists in CourseLista
     };
-    return colorMap[color] || 'bg-blue-600';
+    return colorMap[color] || 'bg-gray-600'; // Default to gray if color not found
   }
 }

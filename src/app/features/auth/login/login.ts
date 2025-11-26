@@ -3,11 +3,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Auth } from '../../../core/auth/services/auth';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, MatSnackBarModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -16,6 +17,7 @@ export class Login implements OnInit {
   private authService = inject(Auth);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   loginForm: FormGroup;
   hidePassword = true;
@@ -58,11 +60,12 @@ export class Login implements OnInit {
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
         this.loading = false;
+        this.snackBar.open('¡Inicio de sesión exitoso!', 'Cerrar', { duration: 3000, verticalPosition: 'top' });
 
         if (this.returnUrl) {
           this.router.navigateByUrl(this.returnUrl);
         } else {
-          this.redirectToDashboard(response.user.rol);
+          this.redirectToDashboard(response.userInfo.rolPrincipal);
         }
       },
       error: (error) => {

@@ -1,5 +1,5 @@
 export interface Course {
-    id: number;
+    id: string;
     titulo: string;
     nivel: string;
     duracion: string;

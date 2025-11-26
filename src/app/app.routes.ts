@@ -37,6 +37,16 @@ export const routes: Routes = [
         title: 'Detalle del Curso - AcademiaPro'
     },
     {
+        path: 'carrito',
+        loadComponent: () => import('./features/carrito/carrito').then(m => m.CarritoComponent),
+        title: 'Carrito de Compras - AcademiaPro'
+    },
+    {
+        path: 'checkout',
+        loadComponent: () => import('./features/checkout/checkout').then(m => m.Checkout),
+        title: 'Checkout - AcademiaPro'
+    },
+    {
         path: 'sobre-nosotros',
         loadComponent: () =>
             import('./features/sobre-nosotros/sobre-nosotros').then(m => m.SobreNosotros),
@@ -78,7 +88,7 @@ export const routes: Routes = [
             {
                 path: 'material-management',
                 loadComponent: () =>
-                    import('./features/profesional/course-management/course-management').then(m => m.CourseManagement) // Adjusted to use course-management as material management
+                    import('./features/profesional/course-management/course-management').then(m => m.CourseManagement)
             },
             {
                 path: 'perfil',

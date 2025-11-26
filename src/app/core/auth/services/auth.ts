@@ -13,7 +13,7 @@ export class Auth {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  private currentUserSubject = new BehaviorSubject<AuthResponse['user'] | null>(null);
+  private currentUserSubject = new BehaviorSubject<AuthResponse['userInfo'] | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
@@ -42,8 +42,8 @@ export class Auth {
             localStorage.setItem('refreshToken', response.refreshToken);
           }
 
-          localStorage.setItem('currentUser', JSON.stringify(response.user));
-          this.currentUserSubject.next(response.user);
+          localStorage.setItem('currentUser', JSON.stringify(response.userInfo));
+          this.currentUserSubject.next(response.userInfo);
 
           if (credentials.rememberMe) {
             localStorage.setItem('rememberMe', 'true');
@@ -76,13 +76,13 @@ export class Auth {
     return localStorage.getItem('token');
   }
 
-  getCurrentUser(): AuthResponse['user'] | null {
+  getCurrentUser(): AuthResponse['userInfo'] | null {
     return this.currentUserSubject.value;
   }
 
   getUserRole(): string | null {
     const user = this.getCurrentUser();
-    return user ? user.rol : null;
+    return user ? user.rolPrincipal : null;
   }
 
   refreshToken(): Observable<AuthResponse> {

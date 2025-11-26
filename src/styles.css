@@ -1,14 +1,251 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   CSS VARIABLES - Sistema de Diseño Moderno
+   ============================================ */
+:root {
+  /* Colores Tecnológicos */
+  --color-primary: #0EA5E9;
+  --color-primary-dark: #0284C7;
+  --color-secondary: #8B5CF6;
+  --color-secondary-dark: #7C3AED;
+  --color-accent: #06B6D4;
+  --color-accent-bright: #22D3EE;
+  
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, #0EA5E9 0%, #3B82F6 100%);
+  --gradient-secondary: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+  --gradient-tech: linear-gradient(135deg, #06B6D4 0%, #3B82F6 50%, #8B5CF6 100%);
+  --gradient-mesh: radial-gradient(at 40% 20%, hsla(210, 100%, 60%, 0.3) 0px, transparent 50%),
+                   radial-gradient(at 80% 0%, hsla(270, 100%, 70%, 0.3) 0px, transparent 50%),
+                   radial-gradient(at 0% 50%, hsla(190, 100%, 60%, 0.3) 0px, transparent 50%);
+  
+  /* Sombras Coloridas */
+  --shadow-glow-blue: 0 0 20px rgba(14, 165, 233, 0.3);
+  --shadow-glow-purple: 0 0 20px rgba(139, 92, 246, 0.3);
+  --shadow-glow-cyan: 0 0 20px rgba(6, 182, 212, 0.3);
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-blur: blur(10px);
+}
+
+/* ============================================
+   RESET Y ESTILOS BASE
+   ============================================ */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   ANIMACIONES PERSONALIZADAS
+   ============================================ */
+
+/* Animación de Gradiente */
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Animación de Flotación */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Animación de Brillo */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Animación de Glow Pulsante */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(14, 165, 233, 0.6);
+  }
+}
+
+/* Animación de Escala Suave */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animación de Slide desde Abajo */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación de Rotación de Gradiente */
+@keyframes rotate-gradient {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+/* ============================================
+   CLASES UTILITARIAS PERSONALIZADAS
+   ============================================ */
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gradiente de Texto */
+.text-gradient {
+  background: var(--gradient-tech);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Borde con Gradiente */
+.border-gradient {
+  border: 2px solid transparent;
+  background-image: linear-gradient(white, white), var(--gradient-tech);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+/* Efecto de Brillo en Hover */
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.shine-effect:hover::before {
+  left: 100%;
+}
+
+/* Sombra con Glow */
+.shadow-glow-blue {
+  box-shadow: 0 10px 40px rgba(14, 165, 233, 0.3);
+}
+
+.shadow-glow-purple {
+  box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3);
+}
+
+.shadow-glow-cyan {
+  box-shadow: 0 10px 40px rgba(6, 182, 212, 0.3);
+}
+
+/* Animaciones Aplicables */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s ease-out;
+}
+
+/* Patrón de Grid Decorativo */
+.grid-pattern {
+  background-image: 
+    linear-gradient(rgba(14, 165, 233, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* Patrón de Puntos */
+.dot-pattern {
+  background-image: radial-gradient(rgba(14, 165, 233, 0.2) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Hover 3D Transform */
+.hover-3d {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-3d:hover {
+  transform: translateY(-8px) rotateX(5deg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }

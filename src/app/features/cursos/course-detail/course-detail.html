@@ -13,10 +13,20 @@
             <p class="text-lg md:text-xl text-gray-200">
                 {{ curso.descripcion }}
             </p>
-            <button (click)="scrollToEnroll()"
+            <button (click)="addToCartOrRedirect()"
                 class="inline-flex items-center px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
-                Matricularse Ahora
+                Añadir a la cesta
             </button>
+            @if (successMessage) {
+            <div class="mt-4 rounded-lg bg-green-50 border border-green-200 p-4 animate-fadeIn">
+                <p class="text-sm text-green-600">{{ successMessage }}</p>
+            </div>
+            }
+            @if (errorMessage) {
+            <div class="mt-4 rounded-lg bg-red-50 border border-red-200 p-4 animate-fadeIn">
+                <p class="text-sm text-red-600">{{ errorMessage }}</p>
+            </div>
+            }
         </div>
     </div>
 </section>
@@ -98,19 +108,28 @@
                     <h2 class="text-3xl font-bold text-gray-900 mb-6">
                         Lo que dicen nuestros alumnos
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        @for (testimonio of curso.testimonios; track testimonio.id) {
-                        <div class="bg-white rounded-lg p-6 shadow-sm">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        @for (testimonio of curso.testimonios; track testimonio.autor) {
+                        <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
                             <div class="flex items-center mb-4">
-                                <img [src]="testimonio.avatar" [alt]="testimonio.nombre"
-                                    class="w-12 h-12 rounded-full mr-4 object-cover"
+                                <img [src]="testimonio.avatarUrl" [alt]="testimonio.autor"
+                                    class="w-14 h-14 rounded-full mr-4 object-cover ring-2 ring-blue-200"
                                     (error)="$event.target.src='assets/images/testimonials/default-avatar.jpg'" />
                                 <div>
-                                    <h4 class="font-semibold text-gray-900">{{ testimonio.nombre }}</h4>
-                                    <p class="text-sm text-gray-600">{{ testimonio.cargo }}</p>
+                                    <h4 class="font-bold text-gray-900 text-lg">{{ testimonio.autor }}</h4>
+                                    <div class="flex items-center">
+                                        @for (star of [1, 2, 3, 4, 5]; track star) {
+                                        <svg [class.text-yellow-400]="star <= testimonio.calificacion"
+                                            [class.text-gray-300]="star > testimonio.calificacion"
+                                            class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.96a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.448a1 1 0 00-.364 1.118l1.287 3.96c.3.921-.755 1.688-1.54 1.118l-3.368-2.448a1 1 0 00-1.176 0l-3.368 2.448c-.784.57-1.838-.197-1.539-1.118l1.287-3.96a1 1 0 00-.364-1.118L2.064 9.387c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69L9.049 2.927z" />
+                                        </svg>
+                                        }
+                                    </div>
                                 </div>
                             </div>
-                            <p class="text-gray-700 italic">"{{ testimonio.testimonio }}"</p>
+                            <p class="text-gray-600 italic">"{{ testimonio.comentario }}"</p>
                         </div>
                         }
                     </div>
@@ -167,97 +186,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</section>
-
-<section id="enroll-section" class="py-16 md:py-24 bg-white">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Asegura tu Plaza Ahora
-            </h2>
-            <p class="text-lg text-gray-600">
-                Completa el formulario para iniciar tu proceso de matriculación. ¡Los cupos son limitados!
-            </p>
-        </div>
-
-        <div class="text-center mb-8">
-            @if (curso.precioOriginal) {
-            <span class="text-2xl text-gray-400 line-through mr-3">${{ curso.precioOriginal }}</span>
-            }
-            <span class="text-5xl font-bold text-blue-600">${{ curso.precio }}</span>
-            <span class="text-xl text-gray-600 ml-2">USD</span>
-        </div>
-
-        <form [formGroup]="enrollForm" (ngSubmit)="onEnroll()" class="max-w-xl mx-auto space-y-6">
-            <div>
-                <label for="nombreCompleto" class="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre Completo
-                </label>
-                <input id="nombreCompleto" type="text" formControlName="nombreCompleto"
-                    placeholder="Tu nombre y apellido"
-                    [class.border-red-500]="nombreCompleto?.invalid && nombreCompleto?.touched"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150" />
-                @if (nombreCompleto?.invalid && nombreCompleto?.touched) {
-                <p class="mt-1 text-sm text-red-600">
-                    @if (nombreCompleto?.errors?.['required']) {
-                    <span>El nombre es requerido</span>
-                    }
-                    @if (nombreCompleto?.errors?.['minlength']) {
-                    <span>El nombre debe tener al menos 3 caracteres</span>
-                    }
-                </p>
-                }
-            </div>
-
-            <div>
-                <label for="correoElectronico" class="block text-sm font-medium text-gray-700 mb-2">
-                    Correo Electrónico
-                </label>
-                <input id="correoElectronico" type="email" formControlName="correoElectronico"
-                    placeholder="tu@email.com"
-                    [class.border-red-500]="correoElectronico?.invalid && correoElectronico?.touched"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-150" />
-                @if (correoElectronico?.invalid && correoElectronico?.touched) {
-                <p class="mt-1 text-sm text-red-600">
-                    @if (correoElectronico?.errors?.['required']) {
-                    <span>El correo es requerido</span>
-                    }
-                    @if (correoElectronico?.errors?.['email']) {
-                    <span>Por favor ingresa un correo válido</span>
-                    }
-                </p>
-                }
-            </div>
-
-            @if (successMessage) {
-            <div class="rounded-lg bg-green-50 border border-green-200 p-4 animate-fadeIn">
-                <div class="flex">
-                    <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                            clip-rule="evenodd" />
-                    </svg>
-                    <p class="text-sm text-green-600">{{ successMessage }}</p>
-                </div>
-            </div>
-            }
-
-            <button type="submit" [disabled]="loading"
-                class="w-full flex justify-center items-center py-4 px-6 bg-orange-500 text-white text-lg font-semibold rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition duration-150 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02]">
-                @if (loading) {
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
-                </svg>
-                <span>Procesando...</span>
-                } @else {
-                <span>Inscribirme en el Curso</span>
-                }
-            </button>
-        </form>
     </div>
 </section>
 }

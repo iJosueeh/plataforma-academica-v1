@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CourseLista } from '@app/core/models/course-lista';
+import { CursoService } from '@app/features/cursos/services/curso.service';
 
 @Component({
   selector: 'app-course-list',
@@ -12,6 +13,8 @@ import { CourseLista } from '@app/core/models/course-lista';
   styleUrl: './course-list.css',
 })
 export class CourseList implements OnInit {
+  private cursoService = inject(CursoService);
+
   searchTerm = '';
   selectedCategoria = '';
   selectedNivel = '';
@@ -43,107 +46,22 @@ export class CourseList implements OnInit {
     'Híbrido'
   ];
 
-  allCourses: CourseLista[] = [
-    {
-      id: 1,
-      titulo: 'Introducción a la Programación',
-      descripcion: 'Aprende los conceptos básicos de la codificación desde cero.',
-      categoria: 'Programación',
-      nivel: 'Principiante',
-      imagen: 'assets/images/courses/programacion-intro.jpg',
-      badge1: 'PROGRAMACIÓN',
-      badge2: 'PRINCIPIANTE',
-      colorBadge1: 'teal',
-      colorBadge2: 'gray'
-    },
-    {
-      id: 2,
-      titulo: 'Diseño Gráfico para Principiantes',
-      descripcion: 'Domina las herramientas esenciales del diseño visual.',
-      categoria: 'Diseño',
-      nivel: 'Principiante',
-      imagen: 'assets/images/courses/diseno-grafico.jpg',
-      badge1: 'DISEÑO',
-      badge2: 'PRINCIPIANTE',
-      colorBadge1: 'teal',
-      colorBadge2: 'gray'
-    },
-    {
-      id: 3,
-      titulo: 'Marketing Digital Avanzado',
-      descripcion: 'Lleva tu campaña de marketing al siguiente nivel.',
-      categoria: 'Marketing',
-      nivel: 'Avanzado',
-      imagen: 'assets/images/courses/marketing-digital.jpg',
-      badge1: 'MARKETING',
-      badge2: 'AVANZADO',
-      colorBadge1: 'teal',
-      colorBadge2: 'gray'
-    },
-    {
-      id: 4,
-      titulo: 'Fundamentos de Python',
-      descripcion: 'Descubre el poder de uno de los lenguajes más populares.',
-      categoria: 'Programación',
-      nivel: 'Intermedio',
-      imagen: 'assets/images/courses/python.jpg',
-      badge1: 'PROGRAMACIÓN',
-      badge2: 'INTERMEDIO',
-      colorBadge1: 'teal',
-      colorBadge2: 'gray'
-    },
-    {
-      id: 5,
-      titulo: 'Curso de Ilustración Digital',
-      descripcion: 'Crea arte digital impactante con técnicas profesionales.',
-      categoria: 'Diseño',
-      nivel: 'Intermedio',
-      imagen: 'assets/images/courses/ilustracion.jpg',
-      badge1: 'DISEÑO',
-      badge2: 'INTERMEDIO',
-      colorBadge1: 'teal',
-      colorBadge2: 'gray'
-    },
-    {
-      id: 6,
-      titulo: 'Estrategias de SEO',
-      descripcion: 'Optimiza tu sitio web para los motores de búsqueda.',
-      categoria: 'Marketing',
-      nivel: 'Avanzado',
-      imagen: 'assets/images/courses/seo.jpg',
-      badge1: 'MARKETING',
-      badge2: 'AVANZADO',
-      colorBadge1: 'teal',
-      colorBadge2: 'gray'
-    },
-    {
-      id: 7,
-      titulo: 'React.js Avanzado',
-      descripcion: 'Domina React con hooks, context y patrones avanzados.',
-      categoria: 'Programación',
-      nivel: 'Avanzado',
-      imagen: 'assets/images/courses/react-avanzado.jpg',
-      badge1: 'PROGRAMACIÓN',
-      badge2: 'AVANZADO',
-      colorBadge1: 'teal',
-      colorBadge2: 'gray'
-    },
-    {
-      id: 8,
-      titulo: 'UX/UI Design Completo',
-      descripcion: 'Diseña experiencias de usuario excepcionales.',
-      categoria: 'Diseño',
-      nivel: 'Intermedio',
-      imagen: 'assets/images/courses/ux-ui.jpg',
-      badge1: 'DISEÑO',
-      badge2: 'INTERMEDIO',
-      colorBadge1: 'teal',
-      colorBadge2: 'gray'
-    }
-  ];
+  allCourses: CourseLista[] = [];
 
   ngOnInit(): void {
     window.scrollTo(0, 0);
+    this.loadCourses();
+  }
+
+  loadCourses(): void {
+    this.cursoService.getAllCourses().subscribe({
+      next: (courses) => {
+        this.allCourses = courses;
+      },
+      error: (error) => {
+        console.error('Error al cargar los cursos:', error);
+      }
+    });
   }
 
   get filteredCourses(): CourseLista[] {

@@ -2,9 +2,10 @@ import { Module } from "./module";
 import { TestimonialDetailCourse } from "./testimonial";
 
 export interface CourseDetalles {
-    id: number;
+    id: string;
     titulo: string;
     descripcion: string;
+    categoria: string;
     duracion: string;
     modalidad: string;
     certificacion: string;

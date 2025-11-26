@@ -1,9 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CourseDetalles } from '@app/core/models/course-detalles';
 import { Module } from '@app/core/models/module';
+import { CursoService } from '@app/features/cursos/services/curso.service';
+import { CarritoService } from '@app/features/estudiante/services/carrito.service';
+import { Auth } from '@app/core/auth/services/auth';
 
 @Component({
   selector: 'app-course-detail',
@@ -14,11 +17,18 @@ import { Module } from '@app/core/models/module';
 export class CourseDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
+  private cursoService = inject(CursoService);
+  private carritoService = inject(CarritoService);
+  private authService = inject(Auth);
+  private router = inject(Router);
 
   curso: CourseDetalles | null = null;
   enrollForm: FormGroup;
   loading = false;
+  dataLoading = false;
   successMessage = '';
+  errorMessage = '';
+  isAuthenticated = false;
 
   constructor() {
     this.enrollForm = this.fb.group({
@@ -29,134 +39,76 @@ export class CourseDetail implements OnInit {
 
   ngOnInit(): void {
     window.scrollTo(0, 0);
+    this.isAuthenticated = this.authService.isAuthenticated();
 
     const cursoId = this.route.snapshot.paramMap.get('id');
-    this.loadCursoData(Number(cursoId));
+    if (cursoId) {
+      this.loadCursoData(cursoId);
+    }
   }
 
-  loadCursoData(id: number): void {
-    this.curso = {
-      id: id,
-      titulo: 'Curso de Desarrollo Web Avanzado',
-      descripcion: 'Domina las tecnologías más demandadas del mercado y lleva tus habilidades al siguiente nivel con nuestro curso práctico e intensivo.',
-      duracion: '8 semanas',
-      modalidad: 'Online en vivo',
-      certificacion: 'Certificado Incluido',
-      nivel: 'Intermedio',
-      precio: 299,
-      precioOriginal: 499,
-      imagen: 'https://www.tecsup.edu.pe/wp-content/uploads/2024/04/banner.jpeg',
-      instructor: {
-        nombre: 'Juan Pérez',
-        cargo: 'Ingeniero de Software Senior',
-        bio: 'Con más de 10 años de experiencia construyendo aplicaciones escalables para startups y grandes corporaciones, Juan es un apasionado por enseñar y compartir las mejores prácticas de la industria.',
-        avatar: 'https://images.unsplash.com/photo-1654110455429-cf322b40a906?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YXZhdGFyfGVufDB8fDB8fHww&fm=jpg&q=60&w=3000',
-        linkedIn: 'https://linkedin.com/in/juanperez'
+  loadCursoData(id: string): void {
+    this.dataLoading = true;
+    this.cursoService.getCourseById(id).subscribe({
+      next: (data) => {
+        this.curso = data;
+        this.dataLoading = false;
       },
-      modulos: [
-        {
-          id: 1,
-          titulo: 'Módulo 1: Fundamentos de React',
-          descripcion: 'Introducción a los componentes, JSX, props y estado. Creación de una aplicación básica de una sola página para asentar las bases del desarrollo moderno.',
-          isExpanded: true,
-          lecciones: [
-            'Introducción a React y su ecosistema',
-            'Componentes funcionales y de clase',
-            'Props y State',
-            'Hooks básicos: useState y useEffect',
-            'Proyecto: Aplicación de tareas'
-          ]
-        },
-        {
-          id: 2,
-          titulo: 'Módulo 2: Estado Avanzado y Hooks',
-          descripcion: 'Profundización en el manejo del estado con Context API, custom hooks y patrones avanzados.',
-          isExpanded: false,
-          lecciones: [
-            'Context API',
-            'useReducer y useContext',
-            'Custom Hooks',
-            'Patrones de composición',
-            'Optimización de rendimiento'
-          ]
-        },
-        {
-          id: 3,
-          titulo: 'Módulo 3: Backend con Node.js y Express',
-          descripcion: 'Construcción de APIs RESTful, autenticación y conexión con bases de datos.',
-          isExpanded: false,
-          lecciones: [
-            'Introducción a Node.js',
-            'Express y routing',
-            'Middleware y manejo de errores',
-            'Conexión con MongoDB',
-            'Autenticación con JWT'
-          ]
-        },
-        {
-          id: 4,
-          titulo: 'Módulo 4: Proyecto Final',
-          descripcion: 'Desarrollo de una aplicación full-stack completa aplicando todos los conceptos aprendidos.',
-          isExpanded: false,
-          lecciones: [
-            'Planificación del proyecto',
-            'Diseño de la arquitectura',
-            'Desarrollo del frontend',
-            'Desarrollo del backend',
-            'Deploy y presentación'
-          ]
-        }
-      ],
-      requisitos: [
-        'Conocimientos básicos de HTML, CSS y JavaScript (variables, funciones, bucles).',
-        'Computadora con acceso a Internet y un editor de código como VS Code.',
-        'Ganas de aprender y construir proyectos increíbles.'
-      ],
-      testimonios: [
-        {
-          id: 1,
-          nombre: 'Carlos Mendoza',
-          cargo: 'Desarrollador Frontend',
-          testimonio: 'Este curso superó mis expectativas. El contenido es práctico y el docente explica con claridad. ¡Pude aplicar lo aprendido en mi trabajo desde la primera semana!',
-          avatar: 'https://img.freepik.com/foto-gratis/chica-cabello-largo-siendo-feliz_23-2148244714.jpg?semt=ais_hybrid&w=740&q=80'
-        },
-        {
-          id: 2,
-          nombre: 'Ana García',
-          cargo: 'Diseñadora UX/UI',
-          testimonio: 'Como diseñadora, quería entender mejor el desarrollo. El curso me dio las herramientas para colaborar más eficazmente con mi equipo. Totalmente recomendado.',
-          avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlwBZHYrWDtR9jrrVLGtA3EAW-r2u3qXZvPg&s'
-        }
-      ]
-    };
+      error: (error) => {
+        console.error('Error al cargar los detalles del curso:', error);
+        this.dataLoading = false;
+      }
+    });
   }
 
   toggleModule(module: Module): void {
     module.isExpanded = !module.isExpanded;
   }
 
-  onEnroll(): void {
-    if (this.enrollForm.invalid) {
-      this.markFormGroupTouched(this.enrollForm);
+  onAddToCart(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      this.errorMessage = 'Debes iniciar sesión para agregar cursos al carrito.';
       return;
     }
 
     this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
 
-    setTimeout(() => {
+    const estudianteId = currentUser.id;
+    const cursoId = this.curso?.id;
+
+    if (!estudianteId || !cursoId) {
+      this.errorMessage = 'No se pudo obtener la información del usuario o del curso.';
       this.loading = false;
-      this.successMessage = '¡Inscripción exitosa! Te hemos enviado un email con los detalles.';
-      this.enrollForm.reset();
+      return;
+    }
 
-      setTimeout(() => {
-        this.successMessage = '';
-      }, 5000);
-    }, 1500);
+    this.carritoService.agregarCurso(estudianteId, cursoId).subscribe({
+      next: () => {
+        this.loading = false;
+        this.successMessage = '¡Curso añadido a la cesta!';
+        this.carritoService.verCarrito(estudianteId).subscribe(carrito => {
+          this.carritoService.updateCartItemCount(carrito.cursoIds.length);
+        });
+        setTimeout(() => { this.successMessage = ''; }, 3000);
+      },
+      error: (error) => {
+        this.loading = false;
+        this.errorMessage = 'Hubo un error al agregar el curso a la cesta.';
+        console.error('Error al agregar al carrito:', error);
+        setTimeout(() => { this.errorMessage = ''; }, 3000);
+      }
+    });
   }
 
-  scrollToEnroll(): void {
-    const element = document.getElementById('enroll-section');
-    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  addToCartOrRedirect(): void {
+    if (this.isAuthenticated) {
+      this.onAddToCart();
+    } else {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+    }
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {

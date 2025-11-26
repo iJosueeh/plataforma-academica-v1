@@ -7,4 +7,9 @@ export interface Testimonial {
     avatar: string;
 }
 
-export type TestimonialDetailCourse = Omit<Testimonial, 'empresa'>;
+export interface TestimonialDetailCourse {
+    autor: string;
+    comentario: string;
+    calificacion: number;
+    avatarUrl: string;
+}

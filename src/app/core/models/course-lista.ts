@@ -1,5 +1,5 @@
 export interface CourseLista {
-    id: number;
+    id: string;
     titulo: string;
     descripcion: string;
     categoria: string;

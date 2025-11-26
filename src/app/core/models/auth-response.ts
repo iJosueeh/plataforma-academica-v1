@@ -1,10 +1,7 @@
+import { User } from './user';
+
 export interface AuthResponse {
     token: string;
-    refreshToken: string;
-    user: {
-        id: string;
-        email: string;
-        name: string;
-        rol: 'ADMIN' | 'PROFESIONAL' | 'ESTUDIANTE';
-    }
+    refreshToken?: string; // Made optional as per backend discussion
+    userInfo: User; // Changed from 'user' to 'userInfo' and type to User
 }
